@@ -1,8 +1,3 @@
-# Copyright 2023 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 #
@@ -14,14 +9,14 @@
 #
 
 
-# [START contentwarehouse_search_documents]
-
 from google.cloud import contentwarehouse
+import os
 
-# TODO(developer): Uncomment these variables before running the sample.
-# project_number = 'YOUR_PROJECT_NUMBER'
-# location = 'YOUR_PROJECT_LOCATION' # Format is 'us' or 'eu'
-# document_query_text = 'YOUR_DOCUMENT_QUERY'
+
+project_number = '125344609093'
+location = 'us'
+document_query_text = 'bigquery'
+user_id = 'user:' + os.environ["GOOGLE_CLOUD_USER"] + '@google.com'
 
 
 def search_documents_sample(
@@ -32,9 +27,11 @@ def search_documents_sample(
     # Create a client
     client = contentwarehouse.DocumentServiceClient()
 
+
     # The full resource name of the location, e.g.:
     # projects/{project_number}/locations/{location}
     parent = client.common_location_path(project=project_number, location=location)
+
 
     # File Type Filter
     # Options: DOCUMENT, FOLDER
@@ -42,26 +39,40 @@ def search_documents_sample(
         file_type=contentwarehouse.FileTypeFilter.FileType.DOCUMENT
     )
 
+
     # Document Text Query
     document_query = contentwarehouse.DocumentQuery(
         query=document_query_text,
         file_type_filter=file_type_filter,
     )
 
+
     # Histogram Query
     histogram_query = contentwarehouse.HistogramQuery(
         histogram_query='count("DocumentSchemaId")'
     )
+
+
+    user_info = contentwarehouse.UserInfo()
+    user_info.id = user_id
+
+
+    request_metadata = contentwarehouse.RequestMetadata()
+    request_metadata.user_info = user_info
+
 
     # Define request
     request = contentwarehouse.SearchDocumentsRequest(
         parent=parent,
         document_query=document_query,
         histogram_queries=[histogram_query],
+        request_metadata=request_metadata
     )
+
 
     # Make the request
     response = client.search_documents(request=request)
+
 
     # Print search results
     for matching_document in response.matching_documents:
@@ -77,6 +88,7 @@ def search_documents_sample(
             f"{matching_document.search_text_snippet}\n"
         )
 
+
     # Print histogram
     for histogram_query_result in response.histogram_query_results:
         print(
@@ -85,6 +97,8 @@ def search_documents_sample(
         )
         for key, value in histogram_query_result.histogram.items():
             print(f"| {key:<70} | {value:<15} |")
+
+
 
 
 # [END contentwarehouse_search_documents]

@@ -13,15 +13,26 @@
 # limitations under the License.
 #
 
+
+# Set two environment variables before running the test GOOGLE_CLOUD_PROJECT and GOOGLE_CLOUD_USER
+# For example,
+# export GOOGLE_CLOUD_PROJECT = pso-starter-kit
+# export GOOGLE_CLOUD_USER = my_ldap  (without @google.com)
+
+
 import os
+
 
 from contentwarehouse.snippets import search_documents_sample
 from contentwarehouse.snippets import test_utilities
 import pytest
 
+
 project_id = os.environ["GOOGLE_CLOUD_PROJECT"]
 location = "us"  # Format is 'us' or 'eu'
 document_query_text = "document"
+
+
 
 
 def test_search_documents(capsys: pytest.CaptureFixture) -> None:
@@ -32,5 +43,6 @@ def test_search_documents(capsys: pytest.CaptureFixture) -> None:
         document_query_text=document_query_text,
     )
     out, _ = capsys.readouterr()
+
 
     assert "document" in out
